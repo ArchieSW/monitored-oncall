@@ -5,7 +5,7 @@ services:
     build: .
     hostname: oncall
     ports:
-      - "8080:8080"
+      - "8082:8080"
     environment:
       - DOCKER_DB_BOOTSTRAP=1
       - IRIS_API_HOST=iris
@@ -16,9 +16,44 @@ services:
   
   oncall-mysql:
     hostname: oncall-mysql
-    image: mysql:5.7
+    image: mysql:8.0.33
+    ports:
+      - "8081:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_ROOT_PASSWORD=example
+    networks:
+      - iris
+
+  prometheus:
+    image: prom/prometheus:v2.36.2
+    container_name: oncall-prometheus
+    depends_on:
+      - oncall-web
+    ports:
+      - "8083:10000"
+    command:
+      - --web.listen-address=:10000
+      - --storage.tsdb.path=/prometheus
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus_data:/opt/bitnami/prometheus/data
+    networks:
+      - iris
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    hostname: cadvisor
+    command:
+      - --port=8084
+    ports:
+      - "8084:8084"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - iris
 

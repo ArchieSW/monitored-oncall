@@ -8,10 +8,12 @@ import os
 import re
 from beaker.middleware import SessionMiddleware
 from falcon_cors import CORS
+from falcon_prometheus import PrometheusMiddleware
 
 from . import db, constants, iris, auth
 
 import logging
+
 logger = logging.getLogger('oncall.app')
 
 security_headers = [
@@ -66,14 +68,31 @@ application = None
 def init_falcon_api(config):
     global application
     cors = CORS(allow_origins_list=config.get('allow_origins_list', []))
-    middlewares = [
-        SecurityHeaderMiddleware(),
-        ReqBodyMiddleware(),
-        cors.middleware
-    ]
+
+    prometheus = PrometheusMiddleware()
+
+    middlewares = []
+
+    if 'metrics' in config:
+        if config['metrics'] != 'prometheus':
+            logger.info("Metrics supported only with prometheus. Starting without metrics")
+        else:
+            logger.info("Running with prometheus metrics.")
+            middlewares.append(prometheus)
+
+    middlewares.append(SecurityHeaderMiddleware())
+    middlewares.append(ReqBodyMiddleware())
+    middlewares.append(cors.middleware)
+
     if config.get('require_auth'):
         middlewares.append(AuthMiddleware())
+
     application = falcon.App(middleware=middlewares)
+
+    if 'metrics' in config:
+        if config['metrics'] == 'prometheus':
+            application.add_route('/metrics', prometheus)
+
     application.req_options.auto_parse_form_urlencoded = False
     application.set_error_serializer(json_error_serializer)
     application.req_options.strip_url_path_trailing_slash = True

@@ -3,13 +3,13 @@ server:
   port: 8080
 debug: True
 oncall_host: http://localhost:8080
-metrics: dummy
+metrics: prometheus
 db:
   conn:
     kwargs:
       scheme: mysql+pymysql
       user: root
-      password: '1234'
+      password: 'example'
       host: oncall-mysql
       port: 3306
       database: oncall
@@ -22,7 +22,7 @@ session:
   encrypt_key: 'abc'
   sign_key: '123'
 auth:
-  debug: False
+  debug: True
   module: 'oncall.auth.modules.debug'
 notifier:
   skipsend: True
