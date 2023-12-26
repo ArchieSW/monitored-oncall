@@ -1,14 +1,110 @@
 global:
-  scrape_interval: 1m
+  scrape_interval: 5s
+
+rule_files:
+  - rule.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
 
 scrape_configs:
-  - job_name: 'oncall'
-    scrape_interval: 5s
-    metrics_path: '/metrics'
+  - job_name: "docker-containers"
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 1s
+#  - job_name: 'duty_exporter'
+#    metrics_path: /
+#    static_configs:
+#      - targets: ['duty_exporter:8090']
+  - job_name: 'mysql'
+    metrics_path: /probe
+    params:
+      module: [ tcp_connect ]
     static_configs:
-      - targets: ['oncall:8080']
+      - targets:
+          - oncall-mysql:3306
+    relabel_configs:
+      - source_labels: [ __address__ ]
+        target_label: __param_target
+      - source_labels: [ __param_target ]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+  - job_name: 'oncall_web_ui_http_get_200'
+    metrics_path: /probe
+    params:
+      module: [http_get_200]
+    static_configs:
+      - targets:
+          - http://oncall:8080/
+    relabel_configs:
+      - source_labels: [ __address__ ]
+        target_label: __param_target
+      - source_labels: [ __param_target ]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+  - job_name: 'oncall_team_api_http_get_200'
+    metrics_path: /probe
+    params:
+      module: [http_get_200]
+    static_configs:
+      - targets:
+          - http://oncall:8080/api/v0/teams/Test Team
+    relabel_configs:
+      - source_labels: [ __address__ ]
+        target_label: __param_target
+      - source_labels: [ __param_target ]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+#  - job_name: 'blackbox_tcp_connect'
+#    metrics_path: /probe
+#    params:
+#      module: [tcp_connect]
+#    static_configs:
+#      - targets:
+#          - http://oncall:8080/
+#    relabel_configs:
+#      - source_labels: [ __address__ ]
+#        target_label: __param_target
+#      - source_labels: [ __param_target ]
+#        target_label: instance
+#      - target_label: __address__
+#        replacement: blackbox:9115
+#  - job_name: 'blackbox_icmp_probe'
+#    metrics_path: /probe
+#    params:
+#      module: [icmp_probe]
+#    static_configs:
+#      - targets:
+#          - http://oncall:8080/
+#    relabel_configs:
+#      - source_labels: [ __address__ ]
+#        target_label: __param_target
+#      - source_labels: [ __param_target ]
+#        target_label: instance
+#      - target_label: __address__
+#        replacement: blackbox:9115
+#  - job_name: 'blackbox_dns_check'
+#    metrics_path: /probe
+#    params:
+#      module: [dns_check]
+#    static_configs:
+#      - targets:
+#          - http://oncall:8080/
+#    relabel_configs:
+#      - source_labels: [ __address__ ]
+#        target_label: __param_target
+#      - source_labels: [ __param_target ]
+#        target_label: instance
+#      - target_label: __address__
+#        replacement: blackbox:9115
   - job_name: 'cadvisor'
-    scrape_interval: 5s
-    metrics_path: '/metrics'
+    metrics_path: /metrics
     static_configs:
-      - targets: ['cadvisor:8084']
+      - targets:
+          - cadvisor:8084

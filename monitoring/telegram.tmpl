@@ -1,0 +1,7 @@
+{{ define "telegram.alert.text" }}
+*Alert:* {{ .CommonAnnotations.description }}
+*Severity:* {{ .CommonLabels.severity }}
+*Actual value:* {{ .CommonAnnotations.value }}
+*Instance:* {{ .CommonAnnotations.instance }}
+*More:* {{ .CommonAnnotations.more }}
+{{ end }}

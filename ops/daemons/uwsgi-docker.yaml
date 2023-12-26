@@ -26,12 +26,13 @@ prod:
     log-5xx: true
     log-x-forwarded-for: true
     log-slow: 1500
+    log-master: true
 
     # access log
-    req-logger: file:/home/oncall/var/log/uwsgi/access.log
+#    req-logger: file:/home/oncall/var/log/uwsgi/access.log
 
     # error log
-    logger: file:/home/oncall/var/log/uwsgi/error.log
+#    logger: file:/home/oncall/var/log/uwsgi/error.log
 
     # put timestamp in the error log
     logdate: true

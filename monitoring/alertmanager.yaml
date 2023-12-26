@@ -1,0 +1,45 @@
+global:
+  resolve_timeout: 1m
+  telegram_api_url: "https://api.telegram.org"
+
+receivers:
+  - name: telegram-critical
+    telegram_configs:
+      - chat_id: -4065351415
+        bot_token: ""
+        api_url: "https://api.telegram.org"
+        send_resolved: true
+        message: '{{ template "telegram.alert.text" . }}'
+        parse_mode: Markdown
+  - name: telegram-warning
+    telegram_configs:
+      - chat_id: -4027763637
+        bot_token: ""
+        api_url: "https://api.telegram.org"
+        send_resolved: false
+        message: '{{ template "telegram.alert.text" . }}'
+        parse_mode: Markdown
+
+time_intervals:
+  - name: work-time
+    time_intervals:
+      - times:
+          - start_time: '07:00'
+            end_time: '24:00'
+        location: 'Europe/Moscow'
+
+route:
+  group_by: ['alertname']
+  receiver: telegram-warning
+  routes:
+    - receiver: telegram-critical
+      matchers:
+        - severity="critical"
+    - receiver: telegram-warning
+      matchers:
+        - severity="warning"
+      active_time_intervals:
+        - work-time
+
+templates:
+  - '/alertmanager/templates/telegram.tmpl'

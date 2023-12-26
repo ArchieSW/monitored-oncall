@@ -25,7 +25,7 @@ auth:
   debug: True
   module: 'oncall.auth.modules.debug'
 notifier:
-  skipsend: True
+  skipsend: False
 healthcheck_path: /tmp/status
 messengers:
   - type: dummy

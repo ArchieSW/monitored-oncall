@@ -1,55 +1,26 @@
-Oncall [![Gitter chat](https://badges.gitter.im/irisoncall/Lobby.png)](https://gitter.im/irisoncall/Lobby) [![Build Status](https://circleci.com/gh/linkedin/oncall.svg?style=shield)](https://circleci.com/gh/linkedin/oncall)
-======
+# LinkedIn OnCall полностью покрытый Observability
+Форк сервиса LinkedIn OnCall для управлением дежурств, покрытый мониторингом. Домашние задания по курсу SRE в Тинькофф Академии
 
-<p align="center"><img src="https://github.com/linkedin/oncall/raw/master/docs/source/_static/demo.png" width="600"></p>
+## Что было сделано
 
-See [admin docs](http://oncall.tools/docs/admin_guide.html) for information on
-how to run and manage Oncall.
+- [X] Сбор метрик в Prometheus с docker service discovery
+- [X] Кастомный экспортер со сбором бизнес метрик (/monitoring/duty_exporter)
+- [X] Blackbox Exporter, Node exporter, CAdvisor
+- [X] Спроектированы и замониторены SLI, SLO, SLA
+- [X] Развернут и настроен стэк для сборки логов ELK
+- [X] Развернута Grafana, настроены дашборды, покрывающие SLI, SLO, SLA системы, RED и USE метрики, логи (
+  /monitoring/dashboards)
+- [X] Настроены алерты в телеграм
+- [X] Round Robin балансировка двух нод через nginx, покрытие его метриками
+- [X] Скрипт с бесшовным обновлением OnCall
 
-Development setup
------------------
-### Prerequisites
+## Скрины с дашбордами
 
-  * Debian/Ubuntu - `sudo apt-get install libsasl2-dev python3-dev libldap2-dev libssl-dev python-pip python-setuptools mysql-server mysql-client`
-
-### Install
-
-```bash
-python setup.py develop
-pip install -e '.[dev]'
-```
-
-Setup mysql schema:
-
-```bash
-mysql -u root -p < ./db/schema.v0.sql
-```
-
-Setup app config by editing configs/config.yaml.
-
-Optionally, you can import dummy data for testing:
-
-```bash
-mysql -u root -p -o oncall < ./db/dummy_data.sql
-```
-
-### Run
-
-One of the following commands:
-
-* `goreman start`
-* `procman start`
-* `make serve`
-* `oncall-dev ./configs/config.yaml`
-
-
-### Test
-
-```bash
-make test
-```
-
-Check out https://github.com/linkedin/oncall/issues for a list of outstanding
-issues, and tackle any one that catches your interest. Contributions are
-expected to be tested thoroughly and submitted with unit/end-to-end tests; look
-in the e2e directory for our suite of end-to-end tests.
+| System Summary                             |
+|--------------------------------------------|
+| ![sys_dash](./static/system_dashboard.jpg) |
+| **Oncall Dashboard**                       |
+| ![oncall1](./static/oncall1.jpg)           |
+| ![oncall2](./static/oncall2.jpg)           |
+| ![oncall3](./static/oncall3.jpg)           |
+| ![oncall4](./static/oncall4.jpg)           |
